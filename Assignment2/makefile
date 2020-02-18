@@ -1,6 +1,6 @@
 CC=gcc
 FLAGS=-l./-O3 -Wall -c
-CFILES:=$(shell ls | grep .c)
+CFILES:=$(shell echo *.c)
 OBJS:=$(CFILES:%.c=%.o)
 all:$(OBJS)
 	$(CC) $(OBJS) -o mykernel

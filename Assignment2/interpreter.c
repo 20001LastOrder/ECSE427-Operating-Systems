@@ -1,5 +1,4 @@
 #include "interpreter.h"
-#include "shellmemory.h"
 
 char message[200];
 
