@@ -1,14 +1,14 @@
 help
-set x 10
-set y 20
-set z mary
-set bobbie Montreal
-set z bob
-set y 30
-print x
-print y
-print z
-set bobbie Percy
+set mary 10
+set tom 20
+set bob mary
+set bobbie MontrealCanadians
+print mary
+print tom
+print bob
 print bobbie
-run testfile.txt
+run script1.txt
+exec script1.txt script2.txt script3.txt
+exec script2.txt script1.txt
+run script3.txt
 quit

@@ -22,8 +22,12 @@ int help(char* tokens[]);
 int quit(char* tokens[]);
 int set(char* tokens[]);
 int print(char* tokens[]);
-int run(char* tokens[]);
+static int run(char* tokens[]);
 int exec(char* tokens[]);
+// declaration from kernel.c
+int myinit(char* filename);
+int isReadyQueueEmpty();
+int scheduler();
 
 // intepret the command and call the correspond methods
 int intepret(char* tokens[]){
@@ -116,7 +120,7 @@ int print(char* tokens[]){
 }
 
 // run: load and run a given script
-int run(char* tokens[]){
+static int run(char* tokens[]){
 	if(tokens[1] == NULL){
 		// too few args error
 		strcpy(message, "too few args, run takes exactly one argument: FILE.TXT");
@@ -188,6 +192,31 @@ int exec(char* tokens[]){
 		strcpy(message, dupMessage);
 		return 5;
 	}
+
+	// begin load filds
+	int i = 1;
+	while(tokens[i]!=NULL){
+		int errorCode = myinit(tokens[i]);
+
+		if(errorCode < 0){
+			if(errorCode == -1){
+				sprintf(dupMessage, "Program %s not found", tokens[i]);
+			}else if(errorCode == -2){
+				sprintf(dupMessage, "No enough RAM space");
+			}else if(errorCode == -3){
+				sprintf(dupMessage, "PCB creation failed");
+			}
+			strcpy(message, dupMessage);
+			return 5;
+		}
+		
+		i+=1;
+	}
+	
+	while(isReadyQueueEmpty() != 1){
+		scheduler();
+	}
+
 	return 0;
 }
 

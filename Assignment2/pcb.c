@@ -1,15 +1,11 @@
 #include "pcb.h"
 
-typedef struct PCB
-{
-    int PC;
-    int start;
-    int end;
-} PCB;
-
-
 PCB* makePCB(int start, int end){
     PCB* pcb = malloc(sizeof(PCB));
+
+    if(pcb == NULL){
+        return NULL;
+    }
     pcb->start = start;
     pcb->PC = start;
     pcb->end = end;

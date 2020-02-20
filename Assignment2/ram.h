@@ -7,5 +7,5 @@
 
 int addToRAM(FILE* file, int* start, int* end);
 void freeRAM(int startIndex, int endIndex);
-
+char* getRam(int addr);
 #endif

@@ -44,3 +44,11 @@ void freeRAM(int startIndex, int endIndex){
         ram[i] = NULL;
     }
 }
+
+char* getRam(int addr){
+    if(addr < MAX_RAM){
+        return ram[addr];
+    }else{
+        return NULL;
+    }
+}
