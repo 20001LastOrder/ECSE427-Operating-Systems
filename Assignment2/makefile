@@ -1,7 +1,10 @@
 CC=gcc
-FLAGS=-l./-O3 -Wall -c
-CFILES:=$(shell echo *.c)
-OBJS:=$(CFILES:%.c=%.o)
+CFILES:=$(wildcard  c/*.c)
+OBJS:=$(CFILES:c/%.c=%.o)
+
+INCLUDEPATH = -Iheader
+FLAGS=$(INCLUDEPATH) -l./-O3 -Wall -c
+
 all:$(OBJS)
 	$(CC) $(OBJS) -o mykernel
 $(OBJS):$(CFILES)

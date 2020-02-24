@@ -1,3 +1,4 @@
 set y 20
+set X ss ss
 print y
 quit
