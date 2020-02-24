@@ -16,7 +16,6 @@ int shellUI(){
         char userInput[1000];
         fgets(userInput, 999, stdin);
         int errorCode = interpret(userInput);
-
         //check break flag
         if(errorCode == -1) break;
         handleErrorCode(errorCode);
@@ -50,8 +49,9 @@ int parse(char userInput[], char* words[], int wordsSize){
 
     char* pointer = userInput;
     //skip white space
-    while(*pointer == ' ' || *pointer == '\t');
-
+    while(*pointer == ' ' || *pointer == '\t'){
+        pointer ++;
+    }
 
     // loop through the input to break it down to tokens
     int wordsCount = 0;
