@@ -9,16 +9,23 @@ int shellUI(){
     // print welcome message
     printf("Welcome to the Percy shell\n");
     printf("Version 2.0 Updated Febrary 2020\n");
+    printf("%s", prompt);
+    char userInput[1000];
 
     // currently infinite loop for the looping
     while(1){
-        printf("%s", prompt);
-        char userInput[1000];
-        fgets(userInput, 999, stdin);
-        int errorCode = interpret(userInput);
-        //check break flag
-        if(errorCode == -1) break;
-        handleErrorCode(errorCode);
+        if(fgets(userInput, 999, stdin) != NULL){
+            int errorCode = interpret(userInput);
+            //check break flag
+            if(errorCode == -1) break;
+            handleErrorCode(errorCode);
+        
+            // print promo only when the input is valid
+            printf("%s", prompt);
+        }else{
+            // file input in finished, redirect back to normal stdin
+            freopen("/dev/tty","r",stdin);
+        }
     }
     return 0;
 }

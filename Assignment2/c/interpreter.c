@@ -155,8 +155,8 @@ static int run(char* tokens[]){
 	}
 
 	int lineNumber = 1;
-	fgets(line, 999, p);
 	while(!feof(p)){
+		fgets(line, 999, p);
 		errorCode = interpret(line);
 
 		// quit commend, leave the script (does not leave the shell)
@@ -172,7 +172,6 @@ static int run(char* tokens[]){
 		}
 
 		lineNumber += 1;
-		fgets(line, 999, p);
 	}
 
 	fclose(p);
@@ -192,7 +191,7 @@ int exec(char* tokens[]){
 		return 2;
 	}
 
-	// check if there is any duplicate string
+	// check if there is any duplicate fiLename
 	char dupMessage[100];
 	if(tokens[2] != NULL && strcmp(tokens[1], tokens[2]) == 0){
 		sprintf(dupMessage, "Script %s already loaded", tokens[2]);

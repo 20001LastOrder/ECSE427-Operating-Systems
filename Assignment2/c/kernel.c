@@ -16,8 +16,13 @@ typedef struct ReadyQueue{
     ReadyQueueNode* tail;
 } ReadyQueue;
 
+// create a ready queue with head and tail points to NULL
 ReadyQueue readyQueue = {NULL, NULL};
+
+// forward declaration of methods in kernel.c
 void addToReady(PCB* pcb);
+void freeAllPCBs();
+void terminateHead();
 
 int main(int argc, char** argv){
     //print welcoming message
@@ -33,16 +38,23 @@ int myinit(char* filename){
     int start = 0;
     int end = 0;
     FILE* file = fopen(filename, "rt");
+
+    //when any init error happens, terminate all the programs in RAM and return
     if(file == NULL){
+        freeAllPCBs();
         return -1;
     }
     
+    // try add the program to RAM
     if(!addToRAM(file, &start, &end)){
+        freeAllPCBs();
         return -2;
     }
 
+    // try make a PCB
     PCB* pcb = makePCB(start, end);
     if(pcb == NULL){
+        freeAllPCBs();
         return -3;
     }
     
@@ -70,18 +82,18 @@ int scheduler(){
     setIR(head->pcb->PC);
     
     // run script based on the position of PC
-    int errorCode = run(head->pcb->end - head->pcb->PC + 1);
+    int errorCode = 0;
+    if(isCPUAvailabe()){
+        errorCode = run(head->pcb->end - head->pcb->PC + 1);
+    }else{
+        // if the CPU is not availale, return and let it try again.
+        return errorCode;
+    }
+
     int currentLine = getIR();
     // terminate program
     if(currentLine > head->pcb->end || errorCode < 0){
-        readyQueue.head = head->next;
-        if(readyQueue.tail == head){
-            readyQueue.tail = NULL;
-        }
-
-        head->next = NULL;
-        free(head->pcb);
-        free(head);
+        terminateHead();
         return errorCode;
     }else{
         // put a program to the end of ready queue
@@ -114,4 +126,29 @@ void addToReady(PCB* pcb){
         previousTail->next = newNode;
         readyQueue.tail = newNode;
     }
+}
+
+// in the case of any load error, free all the PCBs created before 
+// since no program will run
+void freeAllPCBs(){
+    while(readyQueue.head != NULL){
+        terminateHead();
+    }
+}
+
+void terminateHead(){
+    ReadyQueueNode* head = readyQueue.head;
+    if(head == NULL){
+        return;
+    }
+    readyQueue.head = head->next;
+    if(readyQueue.tail == head){
+        readyQueue.tail = NULL;
+    }
+
+    head->next = NULL;
+    // free ram space
+    freeRAM(head->pcb->start, head->pcb->end);
+    free(head->pcb);
+    free(head);
 }

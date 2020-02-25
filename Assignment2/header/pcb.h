@@ -2,6 +2,7 @@
 #define PCB_DEF
 #include <stdlib.h>
 
+// PCB struct
 typedef struct PCB
 {
     int PC;
@@ -9,7 +10,7 @@ typedef struct PCB
     int end;
 } PCB;
 
-typedef struct PCB PCB;
+// creat a PCB by specifying the start and end address of the program
 PCB* makePCB(int start, int end);
 
 #endif
