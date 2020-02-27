@@ -16,12 +16,13 @@ int addToRAM(FILE* file, int* start, int* end){
             break;
         }
     }
+
     //printf("StartINDEX: %d\n", startIndex);
     // if there is no space, return error
     if(startIndex >= MAX_RAM){
         return 0;
     }
-
+	
     char buffer[1000];
     int i = 0;
     while(!feof(file)){

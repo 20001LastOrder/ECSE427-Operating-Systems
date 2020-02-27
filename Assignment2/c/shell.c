@@ -8,11 +8,11 @@ void handleErrorCode(int errorCode);
 int shellUI(){
     // print welcome message
     printf("Welcome to the Percy shell\n");
-    printf("Version 2.0 Updated Febrary 2020\n");
+    printf("Version 2.0 Updated February 2020\n");
     printf("%s", prompt);
     char userInput[1000];
 
-    // currently infinite loop for the looping
+	// currently infinite loop for the looping
     while(1){
         if(fgets(userInput, 999, stdin) != NULL){
             int errorCode = interpret(userInput);
@@ -49,6 +49,14 @@ void handleErrorCode(int errorCode){
         }
 }
 
+static int isEndLine(char c) {
+	return c == '\0' || c == '\n' || c == '\r';
+}
+
+static int isEndWord(char c) {
+	return c == ' ' || c == '\t';
+}
+
 // parse the user input and store the results into words
 int parse(char userInput[], char* words[], int wordsSize){
     //initialize the array of words to NULL
@@ -56,19 +64,34 @@ int parse(char userInput[], char* words[], int wordsSize){
 
     char* pointer = userInput;
     //skip white space
-    while(*pointer == ' ' || *pointer == '\t'){
+    while(isEndWord(*pointer)){
         pointer ++;
     }
 
     // loop through the input to break it down to tokens
     int wordsCount = 0;
+	
+	// used to support multiple words ("multiple words")
+	// default we check for the end of word
+	int checkEndWord = 1;
+
     while(wordsCount < wordsSize){
         char tmp[200];
         int i = 0;
-        while(*pointer!=' ' && *pointer != '\t' && *pointer != '\0' && *pointer != '\n' && *pointer != '\r'){
-             tmp[i] = *pointer;
-             pointer += 1;
-             i+= 1;
+        while((!checkEndWord || !isEndWord(*pointer)) && !isEndLine(*pointer)){
+			//check for escape character
+			if (*pointer == '\\' && *(pointer +1 ) == '"') {
+				//skip escape character
+				pointer++;
+			} else if (*pointer == '"') {
+				// " character along (not escaped) reset the check for end word
+				checkEndWord = !checkEndWord;
+				pointer++;
+				continue;
+			}
+			tmp[i] = *pointer;
+            pointer += 1;
+            i+= 1;
         }
 
         //add the end string flag and duplicate the word if there is any word

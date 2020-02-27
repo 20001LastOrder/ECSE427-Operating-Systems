@@ -2,7 +2,7 @@ help
 set mary 10
 set tom 20
 set bob mary
-set bobbie Montreal Canadians
+set bobbie "Montreal Canadians"
 print mary
 print tom
 print bob
