@@ -23,5 +23,7 @@ Compile and run
 		-Compile (requires make for Windows): make
 		-Run: mykernel.exe
 	-Linux
-		-Compile: make or ./compile
+		-Compile: make or sh compile.sh
 		Run: ./mykernel
+
+To delete all the object file: make clear
