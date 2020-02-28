@@ -48,6 +48,7 @@ int myinit(char* filename){
     // try add the program to RAM
     if(!addToRAM(file, &start, &end)){
         freeAllPCBs();
+		fclose(file);
         return -2;
     }
 
@@ -55,10 +56,12 @@ int myinit(char* filename){
     PCB* pcb = makePCB(start, end);
     if(pcb == NULL){
         freeAllPCBs();
+		fclose(file);
         return -3;
     }
-    
+
     addToReady(pcb);
+	fclose(file);
     return 0;
 }
 

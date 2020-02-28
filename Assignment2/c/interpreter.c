@@ -178,6 +178,16 @@ static int run(char* tokens[]){
 	return errorCode;
 }
 
+static int hasDuplicate(char* programs[], int numPrograms, char* program) {
+	for (int i = 0; i < numPrograms; i++) {
+		if (strcmp(programs[i], program) == 0) {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 // exec: exec 1 to 3 scripts concurrently
 int exec(char* tokens[]){
 	// check for the number of arguments
@@ -191,39 +201,33 @@ int exec(char* tokens[]){
 		return 2;
 	}
 
-	// check if there is any duplicate fiLename
-	char dupMessage[100];
-	if(tokens[2] != NULL && strcmp(tokens[1], tokens[2]) == 0){
-		sprintf(dupMessage, "Script %s already loaded", tokens[2]);
-		strcpy(message, dupMessage);
-		return 5;
-	}else if(tokens[3] != NULL && strcmp(tokens[1], tokens[3]) == 0){
-		sprintf(dupMessage, "Script %s already loaded", tokens[3]);
-		strcpy(message, dupMessage);
-		return 5;
-	}else if(tokens[3] != NULL && strcmp(tokens[2], tokens[3]) == 0){
-		sprintf(dupMessage, "Script %s already loaded", tokens[3]);
-		strcpy(message, dupMessage);
-		return 5;
-	}
+	char* loadedPrograms[] = { "", "","" };
 
-	// begin load filds
+	// begin load fields
 	int i = 1;
 	while(tokens[i]!=NULL){
-		int errorCode = myinit(tokens[i]);
+		if (hasDuplicate(loadedPrograms, i, tokens[i])) {
+			// already loaded program, ignore (not an error)
+			printf("WARNING: program: %s is already loaded, skipping...\n", tokens[i]);
+			i++;
+			continue;
+		}
 
+		int errorCode = myinit(tokens[i]);
+		char errorMessage[100];
 		if(errorCode < 0){
 			if(errorCode == -1){
-				sprintf(dupMessage, "Program %s not found", tokens[i]);
+				sprintf(errorMessage, "Program %s not found", tokens[i]);
 			}else if(errorCode == -2){
-				sprintf(dupMessage, "No enough RAM space");
+				sprintf(errorMessage, "No enough RAM space");
 			}else if(errorCode == -3){
-				sprintf(dupMessage, "PCB creation failed");
+				sprintf(errorMessage, "PCB creation failed");
 			}
-			strcpy(message, dupMessage);
+			strcpy(message, errorMessage);
 			return 5;
 		}
-		
+		// load successful, add loaded program to the loaded program
+		loadedPrograms[i - 1] = tokens[i]; //i starts from 1
 		i+=1;
 	}
 	
