@@ -2,6 +2,8 @@
 
 char message[200];
 
+int isInExec = 0;
+
 // forward declaration of parse function in shell
 int parse(char userInput[], char** words, int wordsSize);
 
@@ -201,12 +203,14 @@ int exec(char* tokens[]){
 		return 2;
 	}
 
-	char* loadedPrograms[] = { "", "","" };
-
 	// begin load fields
 	int i = 1;
+	//store program and if we are already in a exec call
+	char* loadedPrograms[3] = { NULL };
+	int numLoadedPrograms = 0;
 	while(tokens[i]!=NULL){
-		if (hasDuplicate(loadedPrograms, i, tokens[i])) {
+		// check local and globally loaded programs
+		if (hasDuplicate(loadedPrograms, numLoadedPrograms, tokens[i])) {
 			// already loaded program, ignore (not an error)
 			printf("WARNING: program: %s is already loaded, skipping...\n", tokens[i]);
 			i++;
@@ -227,17 +231,22 @@ int exec(char* tokens[]){
 			return 5;
 		}
 		// load successful, add loaded program to the loaded program
-		loadedPrograms[i - 1] = tokens[i]; //i starts from 1
+		loadedPrograms[numLoadedPrograms] = tokens[i]; //i starts from 1
+		numLoadedPrograms += 1;
 		i+=1;
 	}
 	
-	while(isReadyQueueEmpty() != 1){
-		int errorCode = scheduler();
-		if(errorCode != 0){
-			handleErrorCode(errorCode);
+	if (!isInExec) {
+		isInExec = 1;
+		while (isReadyQueueEmpty() != 1) {
+			int errorCode = scheduler();
+			if (errorCode != 0) {
+				handleErrorCode(errorCode);
+			}
 		}
-	}
 
+		isInExec = 0;
+	}
 	return 0;
 }
 

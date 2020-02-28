@@ -31,7 +31,7 @@ int run(int quanta){
     int q = quanta <= cpu.quanta? quanta : cpu.quanta;
     for(int i = 0; i < q; i++){
         strcpy(cpu.IR, getRam(cpu.IP));
-        int errorCode = interpret(cpu.IR);
+		int errorCode = interpret(cpu.IR);
         cpu.IP++;
         if(errorCode != 0){
             cpuAvailable = 1;

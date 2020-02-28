@@ -21,8 +21,10 @@ ReadyQueue readyQueue = {NULL, NULL};
 
 // forward declaration of methods in kernel.c
 void addToReady(PCB* pcb);
-void freeAllPCBs();
+void freePendingPCBs();
 void terminateHead();
+void terminateTail();
+int pendingPCBs = 0;; // the number of pcbs not yet runs
 
 int main(int argc, char** argv){
     //print welcoming message
@@ -41,13 +43,13 @@ int myinit(char* filename){
 
     //when any init error happens, terminate all the programs in RAM and return
     if(file == NULL){
-        freeAllPCBs();
+		freePendingPCBs();
         return -1;
     }
     
     // try add the program to RAM
     if(!addToRAM(file, &start, &end)){
-        freeAllPCBs();
+        freePendingPCBs();
 		fclose(file);
         return -2;
     }
@@ -55,12 +57,13 @@ int myinit(char* filename){
     // try make a PCB
     PCB* pcb = makePCB(start, end);
     if(pcb == NULL){
-        freeAllPCBs();
+        freePendingPCBs();
 		fclose(file);
         return -3;
     }
 
     addToReady(pcb);
+	pendingPCBs++;
 	fclose(file);
     return 0;
 }
@@ -75,11 +78,14 @@ int isReadyQueueEmpty(){
 
 int scheduler(){
     // check if the cpu is available
-    // TODO: not implemention needed yet, since no threading
+    // TODO: not implementation needed yet, since no threading
     // get the head of CPU
     if(readyQueue.head == NULL){
         return 0;
     }
+
+	// starts running set pending pcbs to 0
+	pendingPCBs = 0;
 
     ReadyQueueNode* head = readyQueue.head;
     setIR(head->pcb->PC);
@@ -89,7 +95,7 @@ int scheduler(){
     if(isCPUAvailabe()){
         errorCode = run(head->pcb->end - head->pcb->PC + 1);
     }else{
-        // if the CPU is not availale, return and let it try again.
+        // if the CPU is not available, return and let it try again.
         return errorCode;
     }
 
@@ -133,10 +139,11 @@ void addToReady(PCB* pcb){
 
 // in the case of any load error, free all the PCBs created before 
 // since no program will run
-void freeAllPCBs(){
-    while(readyQueue.head != NULL){
-        terminateHead();
-    }
+void freePendingPCBs(){
+    for(int i = 0; i < pendingPCBs; i++){
+		terminateTail();
+	}
+	pendingPCBs = 0;
 }
 
 void terminateHead(){
@@ -154,4 +161,35 @@ void terminateHead(){
     freeRAM(head->pcb->start, head->pcb->end);
     free(head->pcb);
     free(head);
+}
+
+void terminateTail() {
+	ReadyQueueNode* tail = readyQueue.tail;
+	if (tail == NULL) {
+		return;
+	}
+	ReadyQueueNode* pointer = readyQueue.head;
+	if (pointer == NULL) {
+		return;
+	}
+	if (pointer != tail) {
+		// find the second last node
+		while (pointer->next != tail) {
+			pointer = pointer->next;
+		}
+
+		//set second last to tail
+		readyQueue.tail = pointer;
+		pointer->next = NULL;
+
+	}else {
+		// tail is header
+		readyQueue.head = NULL;
+		readyQueue.tail = NULL;
+	}
+
+	//free ram and tail
+	freeRAM(tail->pcb->start, tail->pcb->end);
+	free(tail->pcb);
+	free(tail);
 }
