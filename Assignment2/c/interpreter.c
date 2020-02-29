@@ -180,7 +180,8 @@ static int run(char* tokens[]){
 	return errorCode;
 }
 
-static int hasDuplicate(char* programs[], int numPrograms, char* program) {
+//deprecated: used to still run file when duplicates
+/*static int hasDuplicate(char* programs[], int numPrograms, char* program) {
 	for (int i = 0; i < numPrograms; i++) {
 		if (strcmp(programs[i], program) == 0) {
 			return 1;
@@ -188,7 +189,7 @@ static int hasDuplicate(char* programs[], int numPrograms, char* program) {
 	}
 
 	return 0;
-}
+}*/
 
 // exec: exec 1 to 3 scripts concurrently
 int exec(char* tokens[]){
@@ -207,7 +208,7 @@ int exec(char* tokens[]){
 	int i = 1;
 	//store program and if we are already in a exec call
 	while(tokens[i]!=NULL){
-		// check local and globally loaded programs
+		// deprecated: used to still run file when duplicates
 /*		if (hasDuplicate(loadedPrograms, numLoadedPrograms, tokens[i])) {
 			// already loaded program, ignore (not an error)
 			printf("WARNING: program: %s is already loaded, skipping...\n", tokens[i]);
