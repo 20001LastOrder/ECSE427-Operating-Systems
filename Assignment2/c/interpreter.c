@@ -206,15 +206,31 @@ int exec(char* tokens[]){
 	// begin load fields
 	int i = 1;
 	//store program and if we are already in a exec call
-	char* loadedPrograms[3] = { NULL };
-	int numLoadedPrograms = 0;
 	while(tokens[i]!=NULL){
 		// check local and globally loaded programs
-		if (hasDuplicate(loadedPrograms, numLoadedPrograms, tokens[i])) {
+/*		if (hasDuplicate(loadedPrograms, numLoadedPrograms, tokens[i])) {
 			// already loaded program, ignore (not an error)
 			printf("WARNING: program: %s is already loaded, skipping...\n", tokens[i]);
 			i++;
 			continue;
+		}*/
+
+		// check if there is any duplicate fiLename
+		char dupMessage[100];
+		if (tokens[2] != NULL && strcmp(tokens[1], tokens[2]) == 0) {
+			sprintf(dupMessage, "Script %s already loaded", tokens[2]);
+			strcpy(message, dupMessage);
+			return 5;
+		}
+		else if (tokens[3] != NULL && strcmp(tokens[1], tokens[3]) == 0) {
+			sprintf(dupMessage, "Script %s already loaded", tokens[3]);
+			strcpy(message, dupMessage);
+			return 5;
+		}
+		else if (tokens[3] != NULL && strcmp(tokens[2], tokens[3]) == 0) {
+			sprintf(dupMessage, "Script %s already loaded", tokens[3]);
+			strcpy(message, dupMessage);
+			return 5;
 		}
 
 		int errorCode = myinit(tokens[i]);
@@ -230,9 +246,6 @@ int exec(char* tokens[]){
 			strcpy(message, errorMessage);
 			return 5;
 		}
-		// load successful, add loaded program to the loaded program
-		loadedPrograms[numLoadedPrograms] = tokens[i]; //i starts from 1
-		numLoadedPrograms += 1;
 		i+=1;
 	}
 	
