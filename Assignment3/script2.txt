@@ -1,0 +1,4 @@
+set y 20
+print y
+exec script.txt
+quit
