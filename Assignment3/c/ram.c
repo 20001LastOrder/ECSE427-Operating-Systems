@@ -86,6 +86,16 @@ void initializeRAM() {
 	ramSize = size;
 }
 
+int nextAvailableFrame(){
+    for(int i = 0; i < FRAME_SIZE; i++){
+        int pos = FRAME_SIZE * LINES_PER_PAGE;
+        if(ram[pos] == NULL){
+            return i;
+        }
+    }
+    return -1;
+}
+
 int loadFrame(int frameId, char contents[LINES_PER_PAGE][999], int size){
     int startPos = frameId * LINES_PER_PAGE;
     if(size > LINES_PER_PAGE){

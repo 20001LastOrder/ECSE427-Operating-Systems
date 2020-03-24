@@ -9,7 +9,6 @@ int launcher(FILE* p) {
 		return 0;
 	}
 
-
 	int pid = getNextAvailablePid();
 
 	// create a file name same as the pid
@@ -58,6 +57,7 @@ int loadPage(int pageNumber, FILE* file, int frameNumber){
 	int size = 0;
 	char buffer[999];
 	char contents[LINES_PER_PAGE][999];
+	// get the next four lines of code
 	while(fgets(buffer, 999, file) != NULL && size <= 4){
 		strcpy(contents[size], buffer);
 		size ++;
@@ -69,6 +69,10 @@ int loadPage(int pageNumber, FILE* file, int frameNumber){
 	}
 
 	return loadFrame(frameNumber, contents, size);
+}
+
+int findFrame(){
+	return nextAvailableFrame();
 }
 
 static int countPage(FILE* file){

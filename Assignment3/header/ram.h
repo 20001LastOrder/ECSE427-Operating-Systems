@@ -21,4 +21,8 @@ void initializeRAM();
 
 //load a frame to the ram, the size must be smaller than or equalt to LINES_PER_PAGE 
 int loadFrame(int frameId, char contents[LINES_PER_PAGE][999], int size);
+
+// find next available frame id
+int nextAvailableFrame();
+
 #endif

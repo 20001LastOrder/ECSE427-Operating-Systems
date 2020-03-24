@@ -14,7 +14,13 @@ int launcher(FILE* p);
 //load a page from disk to ram
 int loadPage(int pageNumber, FILE* file, int frameNumber);
 
+//find the first available fram
+int findFrame();
+
+// ramdomly find a victim
+int findVictim(PCB *p);
+
+// update a page table
+int updatePageTable(PCB *p, int pageNumber, int frameNumber, int victimFrame);
 
 #endif // !MEM_MANAGER
-
-
