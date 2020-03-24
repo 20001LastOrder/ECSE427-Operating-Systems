@@ -5,7 +5,7 @@
 #include "pcb.h"
 #include "ram.h"
 #include "cpu.h"
-#define RAM_SIZE 40
+#include "memorymanager.h"
 #define BACK_STORE "Backstore"
 
 // structs
@@ -41,7 +41,7 @@ int main(int argc, char** argv){
 void boot() {
 	// prepare the ram
 	printf("Booting Kernel...\n");
-	initializeRAM(RAM_SIZE);
+	initializeRAM();
 
 	//Check and delete Backstore
 	char command[100];
@@ -83,7 +83,8 @@ int myinit(char* filename){
     int start = 0;
     int end = 0;
     FILE* file = fopen(filename, "rt");
-
+	launcher(file);
+	file = fopen(filename, "rt");
     //when any init error happens, terminate all the programs in RAM and return
     if(file == NULL){
 		freePendingPCBs();

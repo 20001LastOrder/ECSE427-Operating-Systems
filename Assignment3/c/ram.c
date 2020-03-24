@@ -80,7 +80,25 @@ static int isSpace(char* buffer){
 }
 
 // initialize ram with specific size
-void initializeRAM(int size) {
+void initializeRAM() {
+    int size = FRAME_SIZE * LINES_PER_PAGE;
 	ram = calloc(size, sizeof(char*));
 	ramSize = size;
+}
+
+int loadFrame(int frameId, char contents[LINES_PER_PAGE][999], int size){
+    int startPos = frameId * LINES_PER_PAGE;
+    if(size > LINES_PER_PAGE){
+        printf("ERROR: Exceed maximum frame size");
+        return 1;
+    }else if(ram[startPos] != NULL){
+        printf("Error: Frame is in use");
+        return 1;
+    }
+
+    //load the frame
+    for(int i = 0; i < size; i++){
+        ram[startPos + i] = strdup(contents[i]);
+    }
+    return 0;
 }
