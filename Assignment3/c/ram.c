@@ -5,6 +5,8 @@ static int isSpace(char* buffer);
 
 //simulated ram space (initiate whole space to null)
 char** ram;
+// frame to pcb pointer
+PCB** frameToPCB;
 int ramSize = 0;
 
 int addToRAM(FILE* file, int* start, int* end){
@@ -51,11 +53,15 @@ int addToRAM(FILE* file, int* start, int* end){
     return 1;
 }
 
-void freeRAM(int startIndex, int endIndex){
-    for(int i = startIndex; i <= endIndex; i++){
-        free(ram[i]);
-        ram[i] = NULL;
+void freeRAM(int frameId){
+    int start = frameId * LINES_PER_PAGE;
+    for(int offset = 0; offset < LINES_PER_PAGE; offset++){
+        free(ram[start + offset]);
+        ram[start + offset] = NULL;
     }
+
+    // reset inverted page table
+    frameToPCB[frameId] = NULL;
 }
 
 char* getRam(int addr){
@@ -83,12 +89,13 @@ static int isSpace(char* buffer){
 void initializeRAM() {
     int size = FRAME_SIZE * LINES_PER_PAGE;
 	ram = calloc(size, sizeof(char*));
+    frameToPCB = calloc(FRAME_SIZE, sizeof(PCB*));
 	ramSize = size;
 }
 
 int nextAvailableFrame(){
     for(int i = 0; i < FRAME_SIZE; i++){
-        int pos = FRAME_SIZE * LINES_PER_PAGE;
+        int pos = i * LINES_PER_PAGE;
         if(ram[pos] == NULL){
             return i;
         }
@@ -99,16 +106,30 @@ int nextAvailableFrame(){
 int loadFrame(int frameId, char contents[LINES_PER_PAGE][999], int size){
     int startPos = frameId * LINES_PER_PAGE;
     if(size > LINES_PER_PAGE){
-        printf("ERROR: Exceed maximum frame size");
-        return 1;
-    }else if(ram[startPos] != NULL){
-        printf("Error: Frame is in use");
-        return 1;
+        printf("ERROR: Exceed maximum single frame size\n");
+        return -1;
     }
 
     //load the frame
     for(int i = 0; i < size; i++){
+        if(ram[startPos + i] != NULL){
+            free(ram[startPos + i]);
+        }
         ram[startPos + i] = strdup(contents[i]);
     }
     return 0;
+}
+
+int registerPCB(int frameId, PCB* pcb){
+    if(frameId >= FRAME_SIZE){
+        printf("ERROR: Exceed maximum number of frames\n");
+        return -1;
+    }
+
+    frameToPCB[frameId] = pcb;
+    return 0;
+}
+
+PCB* getPcbByFrameId(int frameId){
+    return frameToPCB[frameId];
 }

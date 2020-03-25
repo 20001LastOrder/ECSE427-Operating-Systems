@@ -5,6 +5,9 @@ char prompt[100]= {'$', '\0'};
 int parse(char userInput[], char** words, int wordsSize);
 void handleErrorCode(int errorCode);
 
+// forward declaration of function in kernel.c
+void terminate();
+
 int shellUI(){
     // print welcome message
     printf("Welcome to the Percy shell\n");
@@ -27,6 +30,8 @@ int shellUI(){
             freopen("/dev/tty","r",stdin);
         }
     }
+
+    terminate();
     return 0;
 }
 

@@ -6,7 +6,6 @@
 #include "ram.h"
 #include "cpu.h"
 #include "memorymanager.h"
-#define BACK_STORE "Backstore"
 
 // structs
 typedef struct ReadyQueueNode{
@@ -28,13 +27,14 @@ void freePendingPCBs();
 void terminateHead();
 void terminateTail();
 void boot();
+static int pageFault(PCB* pcb);
 int pendingPCBs = 0;; // the number of pcbs not yet runs
 
 int main(int argc, char** argv){
     //print welcoming message
 	boot();
     printf("Kernel 1.0 loaded!\n");
-    shellUI();
+    return shellUI();
 }
 
 //prepare the kernel
@@ -75,41 +75,39 @@ void boot() {
 	printf("Kernel booted...\n");
 }
 
-// load a program to ram
+// termination sequence
+void terminate(){
+    //remove all the files in the Backstore
+    char command[100];
+    sprintf(command, "rm ./%s/*", BACK_STORE);
+    system(command);
+    printf("Backstore files removed\n");
+}
+
+// load a program to ram and return the pcb
 // error codes: -1: program does not found
 // error codes: -2: RAM space is full
 // error codes: -3: PCB creation failed 
-int myinit(char* filename){
-    int start = 0;
-    int end = 0;
-    FILE* file = fopen(filename, "rt");
-	launcher(file);
-	file = fopen(filename, "rt");
+PCB* myinit(FILE* file){
     //when any init error happens, terminate all the programs in RAM and return
     if(file == NULL){
+        printf("ERROR: Program file not found\n");
 		freePendingPCBs();
-        return -1;
+        return NULL;
     }
     
-    // try add the program to RAM
-    if(!addToRAM(file, &start, &end)){
-        freePendingPCBs();
-		fclose(file);
-        return -2;
-    }
-
     // try make a PCB
-    PCB* pcb = makePCB(start, end);
+    PCB* pcb = makePCB();
     if(pcb == NULL){
+        printf("ERROR: PCB creation failed\n");
         freePendingPCBs();
 		fclose(file);
-        return -3;
+        return NULL;
     }
 
     addToReady(pcb);
 	pendingPCBs++;
-	fclose(file);
-    return 0;
+    return pcb;
 }
 
 int isReadyQueueEmpty(){
@@ -132,25 +130,51 @@ int scheduler(){
 	pendingPCBs = 0;
 
     ReadyQueueNode* head = readyQueue.head;
-    setIR(head->pcb->PC);
+    PCB* pcb = head->pcb;
+    int frameNumber = pcb->pageTable[pcb->pcPage];
+    setIP(pcb->pageTable[pcb->pcPage] * LINES_PER_PAGE, pcb->pcOffset);
     
     // run script based on the position of PC
     int errorCode = 0;
-    if(isCPUAvailabe()){
-        errorCode = run(head->pcb->end - head->pcb->PC + 1);
+    // only run the code if the page is in the ram
+    if(isCPUAvailabe() && frameNumber != -1){
+        errorCode = run(pcb->maxLine - pcb->pcPage * LINES_PER_PAGE + pcb->pcOffset);
+    }else if(frameNumber == -1){
+        // page fault before the cpu execution
+        errorCode = pageFault(pcb);
+        if(errorCode < 0){
+            //page fault failed, abort
+            return errorCode;
+        }
     }else{
         // if the CPU is not available, return and let it try again.
         return errorCode;
     }
 
-    int currentLine = getIR();
+    // handle page switch
+    if(errorCode == 100){  
+        // load only if this is not the last page
+        pcb->pcPage++;
+        if(pcb->pcPage < pcb->maxPage && pcb->pageTable[pcb->pcPage] == -1){
+            errorCode = pageFault(pcb);
+            if(errorCode < 0){
+                //page fault failed, abort
+                return errorCode;
+            }
+        }
+        // reset offset
+        pcb->pcOffset = 0;
+    }else{
+        // store offset
+        pcb->pcOffset = getOffset();
+    }
+
     // terminate program
-    if(currentLine > head->pcb->end || errorCode < 0){
+    if(pcb->pcPage * LINES_PER_PAGE + pcb->pcOffset >= pcb->maxLine || errorCode < 0){
         terminateHead();
         return errorCode;
     }else{
         // put a program to the end of ready queue
-        head->pcb->PC = currentLine;
         // set head to the next node
         if(head->next!=NULL){
             readyQueue.head = head->next;
@@ -162,6 +186,11 @@ int scheduler(){
         }
         head->next = NULL;
     }
+    return errorCode;
+}
+
+static int pageFault(PCB* pcb){
+    int errorCode = tryLoadPage(pcb, pcb->pcPage);
     return errorCode;
 }
 
@@ -202,7 +231,11 @@ void terminateHead(){
 
     head->next = NULL;
     // free ram space
-    freeRAM(head->pcb->start, head->pcb->end);
+    for(int i = 0; i < PAGE_TABLE_SIZE; i++){
+        if(head->pcb->pageTable[i] != -1){
+            freeRAM(head->pcb->pageTable[i]);
+        }
+    }
     free(head->pcb);
     free(head);
 }
@@ -233,7 +266,11 @@ void terminateTail() {
 	}
 
 	//free ram and tail
-	freeRAM(tail->pcb->start, tail->pcb->end);
+    for(int i = 0; i < PAGE_TABLE_SIZE; i++){
+        if(tail->pcb->pageTable[i] != -1){
+            freeRAM(tail->pcb->pageTable[i]);
+        }
+    }
 	free(tail->pcb);
 	free(tail);
 }

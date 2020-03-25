@@ -3,13 +3,15 @@
 
 #include <stdlib.h>
 #include "ram.h"
+#include "memorymanager.h"
 #include <string.h>
 
 // set the Instruction address of cpu to specific place
-void setIR(int address);
+void setIP(int start, int offset);
 
 // get the instruction register value
-int getIR();
+int getFrame();
+int getOffset();
 
 // run the current program for a maximum (quanta) lines of code
 int run(int quanta);

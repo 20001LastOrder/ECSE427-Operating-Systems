@@ -2,7 +2,7 @@
 
 int nextAvailablePid = 0;
 
-PCB* makePCB(int start, int end){
+PCB* makePCB(){
     PCB* pcb = malloc(sizeof(PCB));
 
     if(pcb == NULL){
@@ -10,9 +10,11 @@ PCB* makePCB(int start, int end){
     }
 
 	pcb->pid = nextAvailablePid++;
-    pcb->start = start;
-    pcb->PC = start;
-    pcb->end = end;
+
+    // initially no pages is loaded, so initiate everything to -1
+    for(int i = 0; i < PAGE_TABLE_SIZE; i++){
+        pcb->pageTable[i] = -1;
+    }
 
     return pcb;
 }

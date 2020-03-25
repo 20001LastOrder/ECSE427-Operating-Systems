@@ -217,33 +217,29 @@ int exec(char* tokens[]){
 		}*/
 
 		// check if there is any duplicate fiLename
-		char dupMessage[100];
-		if (tokens[2] != NULL && strcmp(tokens[1], tokens[2]) == 0) {
-			sprintf(dupMessage, "Script %s already loaded", tokens[2]);
-			strcpy(message, dupMessage);
-			return 5;
-		}
-		else if (tokens[3] != NULL && strcmp(tokens[1], tokens[3]) == 0) {
-			sprintf(dupMessage, "Script %s already loaded", tokens[3]);
-			strcpy(message, dupMessage);
-			return 5;
-		}
-		else if (tokens[3] != NULL && strcmp(tokens[2], tokens[3]) == 0) {
-			sprintf(dupMessage, "Script %s already loaded", tokens[3]);
-			strcpy(message, dupMessage);
-			return 5;
-		}
+		// char dupMessage[100];
+		// if (tokens[2] != NULL && strcmp(tokens[1], tokens[2]) == 0) {
+		// 	sprintf(dupMessage, "Script %s already loaded", tokens[2]);
+		// 	strcpy(message, dupMessage);
+		// 	return 5;
+		// }
+		// else if (tokens[3] != NULL && strcmp(tokens[1], tokens[3]) == 0) {
+		// 	sprintf(dupMessage, "Script %s already loaded", tokens[3]);
+		// 	strcpy(message, dupMessage);
+		// 	return 5;
+		// }
+		// else if (tokens[3] != NULL && strcmp(tokens[2], tokens[3]) == 0) {
+		// 	sprintf(dupMessage, "Script %s already loaded", tokens[3]);
+		// 	strcpy(message, dupMessage);
+		// 	return 5;
+		// }
 
-		int errorCode = myinit(tokens[i]);
-		char errorMessage[100];
+		//int errorCode = myinit(tokens[i]);
+		FILE* file = fopen(tokens[i], "rt");
+		int errorCode = launcher(file);
 		if(errorCode < 0){
-			if(errorCode == -1){
-				sprintf(errorMessage, "Program %s not found", tokens[i]);
-			}else if(errorCode == -2){
-				sprintf(errorMessage, "No enough RAM space");
-			}else if(errorCode == -3){
-				sprintf(errorMessage, "PCB creation failed");
-			}
+			char errorMessage[100];
+			sprintf(errorMessage, "Program launch error: %s", tokens[i]);
 			strcpy(message, errorMessage);
 			return 5;
 		}

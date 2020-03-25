@@ -9,10 +9,5 @@ all:$(OBJS)
 	$(CC) $(OBJS) -o mykernel
 $(OBJS):$(CFILES)
 	$(CC) $(FLAGS) $(CFILES)
-debug:$(OBJS)
-	$(CC) $(OBJS) -o mykernel
-$(OBJS):$(CFILES)
-	$(CC) $(FLAGS) $(CFILES)
-
 clear:
 	rm *.o

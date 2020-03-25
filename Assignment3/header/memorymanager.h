@@ -2,8 +2,12 @@
 #define MEM_MANAGER_DEF
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "pcb.h"
 #include "ram.h"
+#define BACK_STORE "Backstore"
+#define DEFAULT_PAGES 2
+
 /*
  * file contains interface regarding memory management
 **/
@@ -22,5 +26,8 @@ int findVictim(PCB *p);
 
 // update a page table
 int updatePageTable(PCB *p, int pageNumber, int frameNumber, int victimFrame);
+
+// try load the next page for the program
+int tryLoadPage(PCB* pcb, int pageNumber);
 
 #endif // !MEM_MANAGER
