@@ -41,7 +41,7 @@ int launcher(FILE* p) {
 		if(*(pointer + length - 1) != '\n') strcat(pointer, "\n");
 		lineCount ++;
 		// copy the content to the new file
-		fprintf(virtualMem, pointer);
+		fprintf(virtualMem, "%s", pointer);
 	}
 	//close the original pointer
 	fclose(p);
