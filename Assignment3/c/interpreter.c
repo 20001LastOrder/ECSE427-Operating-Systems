@@ -208,36 +208,10 @@ int exec(char* tokens[]){
 	int i = 1;
 	//store program and if we are already in a exec call
 	while(tokens[i]!=NULL){
-		// deprecated: used to still run file when duplicates
-/*		if (hasDuplicate(loadedPrograms, numLoadedPrograms, tokens[i])) {
-			// already loaded program, ignore (not an error)
-			printf("WARNING: program: %s is already loaded, skipping...\n", tokens[i]);
-			i++;
-			continue;
-		}*/
-
-		// check if there is any duplicate fiLename
-		// char dupMessage[100];
-		// if (tokens[2] != NULL && strcmp(tokens[1], tokens[2]) == 0) {
-		// 	sprintf(dupMessage, "Script %s already loaded", tokens[2]);
-		// 	strcpy(message, dupMessage);
-		// 	return 5;
-		// }
-		// else if (tokens[3] != NULL && strcmp(tokens[1], tokens[3]) == 0) {
-		// 	sprintf(dupMessage, "Script %s already loaded", tokens[3]);
-		// 	strcpy(message, dupMessage);
-		// 	return 5;
-		// }
-		// else if (tokens[3] != NULL && strcmp(tokens[2], tokens[3]) == 0) {
-		// 	sprintf(dupMessage, "Script %s already loaded", tokens[3]);
-		// 	strcpy(message, dupMessage);
-		// 	return 5;
-		// }
-
 		//int errorCode = myinit(tokens[i]);
 		FILE* file = fopen(tokens[i], "rt");
 		int errorCode = launcher(file);
-		if(errorCode < 0){
+		if(errorCode <= 0){
 			char errorMessage[100];
 			sprintf(errorMessage, "Program launch error: %s", tokens[i]);
 			strcpy(message, errorMessage);

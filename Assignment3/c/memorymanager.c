@@ -11,7 +11,7 @@ int launcher(FILE* p) {
 	PCB* pcb = myinit(p);
 	if(pcb == NULL){
 		// create PCB failed
-		return -1;
+		return 0;
 	}
 
 
@@ -55,9 +55,9 @@ int launcher(FILE* p) {
 	// initialize the pcb
 	int pages = countPage(virtualMem);
 	if(pages > FRAME_SIZE){
-		printf("program exceed the maximum number of lines supported");
+		printf("program exceed the maximum number of lines supported\n");
 		freePendingPCBs();
-		return -1;
+		return 0;
 	}
 
 	pcb->maxPage = pages;
@@ -73,7 +73,12 @@ int launcher(FILE* p) {
 		errorCode += tryLoadPage(pcb, count);
 		count += 1;
 	}	
-	return errorCode;
+
+	if(errorCode < 0){
+		return 0;
+	}else{
+		return 1;
+	}
 }
 
 int loadPage(int pageNumber, FILE* file, int frameNumber){
@@ -81,7 +86,7 @@ int loadPage(int pageNumber, FILE* file, int frameNumber){
 	int lineNumber = 0;
 	char buffer[999];
 	while(lineNumber < pageNumber * LINES_PER_PAGE){
-		fgets(buffer, 999, file);;
+		fgets(buffer, 999, file);
 		lineNumber++;
 	}
 

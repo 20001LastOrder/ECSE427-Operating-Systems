@@ -3,21 +3,6 @@ print a
 set b 20
 print b
 set c 30
-print c
-set d 40
-print d
-set e 50
-print e
-set f 60
-print f
-set g 70
-print g
-set h 80
-print h
-set i 90
-print i
-set j 100
-print j
-set k 110
-print k
+
+
 

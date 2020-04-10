@@ -1,5 +1,4 @@
 help
 set x 10
 print x
-exec script1.txt script1.txt
 quit

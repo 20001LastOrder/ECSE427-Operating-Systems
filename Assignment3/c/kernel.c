@@ -156,6 +156,7 @@ int scheduler(){
         // load only if this is not the last page
         pcb->pcPage++;
         if(pcb->pcPage < pcb->maxPage && pcb->pageTable[pcb->pcPage] == -1){
+            // page is not in the ram, load it from the disk
             errorCode = pageFault(pcb);
             if(errorCode < 0){
                 //page fault failed, abort
