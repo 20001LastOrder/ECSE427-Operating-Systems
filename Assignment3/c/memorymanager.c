@@ -189,7 +189,7 @@ static int countPage(FILE* file){
 	// reset to the initial position
 	fseek(file, 0, SEEK_SET);
 	char c;
-	int lines;
+	int lines = 0;
 	// the file in backstore will always end with a new line
 	while((c = fgetc(file)) != EOF){
 		if(c == '\n') lines++; 
